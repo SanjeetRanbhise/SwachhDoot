@@ -1,0 +1,1 @@
+export const MAX_DESCRIPTIVE_TEXT_LENGTH = 160;
