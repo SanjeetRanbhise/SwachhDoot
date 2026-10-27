@@ -152,14 +152,14 @@ export const CollectorDashboard: React.FC = () => {
 
                 {complaint.image_url && (
                   <div className="mb-4">
-                    <img src={`http://127.0.0.1:3001${complaint.image_url}`} alt="Complaint" className="w-full h-40 object-cover rounded-lg" />
+                    <img src={`https://swachhdoot-api.onrender.com${complaint.image_url}`} alt="Complaint" className="w-full h-40 object-cover rounded-lg" />
                   </div>
                 )}
 
                 {complaint.cleaning_image_url && (
                   <div className="mb-4">
                     <div className="text-sm text-gray-600 mb-2">Cleaning photo</div>
-                    <img src={`http://127.0.0.1:3001${complaint.cleaning_image_url}`} alt="After cleaning" className="w-full h-40 object-cover rounded-lg" />
+                    <img src={`https://swachhdoot-api.onrender.com${complaint.cleaning_image_url}`} alt="After cleaning" className="w-full h-40 object-cover rounded-lg" />
                     {complaint.cleaned_at && <div className="text-sm text-gray-500 mt-1">Cleaned {new Date(complaint.cleaned_at).toLocaleString()}</div>}
                     {complaint.delay_reason && <div className="mt-2 rounded bg-orange-50 border border-orange-200 p-2 text-sm text-orange-800"><strong>Delay reason:</strong> {complaint.delay_reason}</div>}
                   </div>
