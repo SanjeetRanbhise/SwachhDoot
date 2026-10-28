@@ -119,7 +119,7 @@ const result = await query(
     req.user.id,
     description.trim(),
     waste_type.trim(),
-    `/uploads/${req.file.filename}`,
+    imageUrl,,
     latitude || null,
     longitude || null,
     address.trim(),
