@@ -756,7 +756,17 @@ try {
                     <td className="px-6 py-4 text-sm text-gray-800">{complaint.collector_name || '—'}</td>
                     <td className="px-6 py-4 text-sm text-gray-800">
                       <div>{complaint.cleaned_at ? formatDate(complaint.cleaned_at) : '—'}</div>
-                      {complaint.cleaning_image_url && <img src={ complaint.cleaning_image_url.startsWith('http') ? complaint.cleaning_image_url : `https://swachhdoot-api.onrender.com${complaint.cleaning_image_url}`} alt="Cleaning" className="mt-1 h-12 w-16 object-cover rounded" />}
+                      {complaint.cleaning_image_url && (
+  <img
+    src={
+      complaint.cleaning_image_url.startsWith('http')
+        ? complaint.cleaning_image_url
+        : `https://swachhdoot-api.onrender.com${complaint.cleaning_image_url}`
+    }
+    alt="After cleaning"
+    className="w-full h-40 object-cover rounded-lg"
+  />
+)}
                       <div>{complaint.rating ? `${complaint.rating}/5` : 'Not verified'}</div>
                       {complaint.feedback && <div className="text-gray-500">{complaint.feedback}</div>}
                     </td>
