@@ -7,8 +7,13 @@ import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { verifyToken, requireRole } from './auth.js';
 import { isDescriptiveTextTooLong } from '../validation.js';
+import { createClient } from '@supabase/supabase-js';
 
 const router = express.Router();
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SECRET_KEY
+);
 const uploadDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 const upload = multer({
@@ -68,7 +73,30 @@ const wasteIntensity = String(waste_intensity || '').toUpperCase();
 if (!validIntensities.includes(wasteIntensity)) {
   return res.status(400).json({ error: 'Please select a valid waste intensity' });
 }
-   const complaintId = generateComplaintId();
+const complaintId = generateComplaintId();
+const fileExt = path.extname(req.file.originalname).toLowerCase();
+const storagePath = `complaints/${Date.now()}-${crypto.randomUUID()}${fileExt}`;
+
+const { error: uploadError } = await supabase.storage
+  .from('complaint-photos')
+  .upload(storagePath, await fs.promises.readFile(req.file.path), {
+    contentType: req.file.mimetype,
+    upsert: false,
+  });
+
+if (uploadError) {
+  console.error('Supabase photo upload failed:', uploadError);
+  return res.status(500).json({ error: 'Failed to store complaint photo' });
+}
+
+const { data: publicUrlData } = supabase.storage
+  .from('complaint-photos')
+  .getPublicUrl(storagePath);
+
+const imageUrl = publicUrlData.publicUrl;
+
+// Remove the temporary local upload after Supabase stores it.
+await fs.promises.unlink(req.file.path).catch(() => {});
 
 
 const result = await query(
@@ -206,11 +234,37 @@ router.put('/:id/cleaning', verifyToken, requireRole('COLLECTOR'), upload.single
       await fs.promises.unlink(req.file.path).catch(() => {});
       return res.status(400).json({ error: 'This complaint has exceeded its time limit. Please provide a reason for the delay.' });
     }
+
+    const fileExt = path.extname(req.file.originalname).toLowerCase();
+const storagePath = `cleaning/${Date.now()}-${crypto.randomUUID()}${fileExt}`;
+
+const { error: uploadError } = await supabase.storage
+  .from('complaint-photos')
+  .upload(
+    storagePath,
+    await fs.promises.readFile(req.file.path),
+    {
+      contentType: req.file.mimetype,
+      upsert: false,
+    }
+  );
+
+if (uploadError) {
+  console.error('Supabase cleaning photo upload failed:', uploadError);
+  throw uploadError;
+}
+
+const { data: cleaningPublicUrlData } = supabase.storage
+  .from('complaint-photos')
+  .getPublicUrl(storagePath);
+
+const cleaningImageUrl = cleaningPublicUrlData.publicUrl;
+
     const result = await client.query(
       `UPDATE complaints SET cleaning_image_url = $1, status = 'CLEANED', cleaned_at = CURRENT_TIMESTAMP,
        delay_reason = CASE WHEN $3 <> '' THEN $3 ELSE delay_reason END, updated_at = CURRENT_TIMESTAMP
        WHERE id = $2 RETURNING *`,
-      [`/uploads/${req.file.filename}`, req.params.id, delayReason]);
+      [cleaningImageUrl, req.params.id, delayReason]);
     await client.query('INSERT INTO complaint_status_history (complaint_id, status, performed_by, performed_role) VALUES ($1, $2, $3, $4)', [Number(req.params.id), 'CLEANED', req.user.id, req.user.role]);
     await client.query('COMMIT');
     res.json(result.rows[0]);

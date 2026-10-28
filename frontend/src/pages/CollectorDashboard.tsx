@@ -152,7 +152,7 @@ export const CollectorDashboard: React.FC = () => {
 
                 {complaint.image_url && (
                   <div className="mb-4">
-                    <img src={`https://swachhdoot-api.onrender.com${complaint.image_url}`} alt="Complaint" className="w-full h-40 object-cover rounded-lg" />
+                    <img src={ complaint.image_url.startsWith('http') ? complaint.image_url : `https://swachhdoot-api.onrender.com${complaint.image_url}`} alt="Complaint" className="w-full h-40 object-cover rounded-lg" />
                   </div>
                 )}
 

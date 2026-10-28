@@ -113,10 +113,34 @@ export const TrackComplaint: React.FC = () => {
                 <div className="text-gray-800">{complaint.address || 'No address provided'}</div>
               </div>
 
-              {complaint.image_url && <img src={`https://swachhdoot-api.onrender.com${complaint.image_url}`} alt="Original complaint" className="w-full max-h-64 object-cover rounded-lg" />}
-              {complaint.cleaning_image_url && <div><div className="text-sm text-gray-600 mb-2">Cleaning photo</div><img src={`https://swachhdoot-api.onrender.com${complaint.cleaning_image_url}`} alt="After cleaning" className="w-full max-h-64 object-cover rounded-lg" /></div>}
-              {complaint.cleaned_at && <div><div className="text-sm text-gray-600">Cleaned on</div><div className="text-gray-800">{new Date(complaint.cleaned_at).toLocaleString()}</div></div>}
+            {complaint.image_url && (
+  <img
+    src={
+      complaint.image_url.startsWith('http')
+        ? complaint.image_url
+        : `https://swachhdoot-api.onrender.com${complaint.image_url}`
+    }
+    alt="Original complaint"
+    className="w-full max-h-64 object-cover rounded-lg"
+  />
+)}
 
+{complaint.cleaning_image_url && (
+  <div>
+    <div className="text-sm text-gray-600 mb-2">
+      Cleaning photo
+    </div>
+    <img
+      src={
+        complaint.cleaning_image_url.startsWith('http')
+          ? complaint.cleaning_image_url
+          : `https://swachhdoot-api.onrender.com${complaint.cleaning_image_url}`
+      }
+      alt="After cleaning"
+      className="w-full max-h-64 object-cover rounded-lg"
+    />
+  </div>
+)}
               <div>
                 <div className="text-sm text-gray-600 mb-2">Description</div>
                 <div className="text-gray-800">{complaint.description}</div>
